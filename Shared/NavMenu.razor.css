@@ -11,6 +11,9 @@
     font-size: 1.1rem;
 }
 
+.nav-item-contabil { position: relative; }
+.dropdown-panel { position: absolute; top: 100%; left: 0; z-index: 1000; background-color: #343a40; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; min-width: 220px; }
+
 .oi {
     width: 2rem;
     font-size: 1.1rem;
@@ -49,6 +52,23 @@
     background-color: rgba(255,255,255,0.1);
     color: white;
 }
+
+.cascade-menu {
+    padding-left: 0.75rem;
+    text-align: left;
+}
+
+.cascade-menu .menu-root { list-style: none; margin: 0; padding-left: 0; }
+.cascade-menu .menu-node { list-style: none; margin: 0; padding-left: 1rem; position: relative; }
+.cascade-menu .level-item { display: block; padding: 0.25rem 0.5rem; }
+.cascade-menu .menu-toggle { display: flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.5rem; }
+.cascade-menu .submenu { overflow: hidden; max-height: 0; transition: max-height 0.25s ease; padding-left: 1rem; margin: 0; }
+.cascade-menu .menu-node.expanded > .submenu { max-height: 1000px; }
+.cascade-menu .caret { transition: transform 0.2s ease; }
+.cascade-menu .menu-node.expanded > .menu-toggle .caret { transform: rotate(90deg); }
+
+.dropdown-panel a { color: #d7d7d7; text-decoration: none; }
+.dropdown-panel a:hover { color: #ffffff; }
 
 @media (min-width: 641px) {
     .navbar-toggler {
