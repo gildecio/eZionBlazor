@@ -1,79 +1,14 @@
-<nav class="navbar navbar-dark bg-dark justify-content-start">
-    <a class="navbar-brand" href="">eZionBlazor</a>
-    <div class="navbar-nav flex-row ms-3">
-        <NavLink class="nav-link px-2" href="/" Match="NavLinkMatch.All">
-            <span class="oi oi-home" aria-hidden="true"></span> Home
-        </NavLink>
-        <NavLink class="nav-link px-2" href="/counter">
-            <span class="oi oi-plus" aria-hidden="true"></span> Counter
-        </NavLink>
-        <NavLink class="nav-link px-2" href="/fetchdata">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-        </NavLink>
-        <div class="nav-item-contabil">
-            <a href="#" class="nav-link px-2" @onclick="ToggleContabil" @onclick:preventDefault="true">
-                <span class="oi oi-dollar" aria-hidden="true"></span> Contábil <span class="caret">▸</span>
-            </a>
-            @if (showContabil)
-            {
-                <div class="cascade-menu dropdown-panel px-3 py-2">
-                    <ul class="menu-root">
-                        <li class="menu-node expanded">
-                            <a href="#" class="menu-toggle">Cadastros <span class="caret">▸</span></a>
-                            <ul class="submenu">
-                                <li class="menu-node"><NavLink class="level-item" href="/contabil/cadastros/empresa" @onclick="CloseContabil">Empresa</NavLink></li>
-                                <li class="menu-node"><NavLink class="level-item" href="/contabil" @onclick="CloseContabil">Lançamentos</NavLink></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            }
-        </div>
-    </div>
-</nav>
+@using MudBlazor
+@inject NavigationManager Nav
 
-@implements IDisposable
-@inject NavigationManager NavManager
-@using Microsoft.JSInterop
-@inject IJSRuntime JS
-
-@code {
-    private bool showContabil = false;
-    private DotNetObjectReference<NavMenu>? _objRef;
-
-    private void ToggleContabil()
-    {
-        showContabil = !showContabil;
-    }
-
-    private void CloseContabil()
-    {
-        showContabil = false;
-    }
-
-    protected override void OnInitialized()
-    {
-        NavManager.LocationChanged += OnLocationChanged;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            _objRef = DotNetObjectReference.Create(this);
-            await JS.InvokeVoidAsync("navmenu.registerOutsideClose", _objRef);
-        }
-    }
-
-    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
-    {
-        showContabil = false;
-        InvokeAsync(StateHasChanged);
-    }
-
-    public void Dispose()
-    {
-        NavManager.LocationChanged -= OnLocationChanged;
-        _objRef?.Dispose();
-    }
-}
+<MudAppBar Color="Color.Dark" Elevation="0" Dense="true">
+    <MudText Typo="Typo.h6">eZionBlazor</MudText>
+    <MudLink Href="/" Class="ms-3"><MudIcon Icon="@Icons.Material.Filled.Home" Class="me-1" /> Home</MudLink>
+    <MudLink Href="/counter" Class="ms-3"><MudIcon Icon="@Icons.Material.Filled.Add" Class="me-1" /> Counter</MudLink>
+    <MudLink Href="/fetchdata" Class="ms-3"><MudIcon Icon="@Icons.Material.Filled.List" Class="me-1" /> Fetch data</MudLink>
+    <MudMenu Label="Contábil" Class="ms-3" Dense="true" OffsetY>
+        <MudMenuItem Disabled="true">Cadastros</MudMenuItem>
+        <MudMenuItem OnClick="@(()=> Nav.NavigateTo("/contabil/cadastros/empresa"))">Empresa</MudMenuItem>
+        <MudMenuItem OnClick="@(()=> Nav.NavigateTo("/contabil"))">Lançamentos</MudMenuItem>
+    </MudMenu>
+</MudAppBar>
