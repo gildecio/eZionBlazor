@@ -5,16 +5,20 @@
 <PageTitle>Empresas</PageTitle>
 
 <section class="container mx-auto px-4 py-8">
-    <div class="flex items-center justify-between mb-4">
+    <div class="mb-2">
         <h1 class="text-2xl font-bold flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6"><path fill="currentColor" d="M3 9l9-6 9 6v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/></svg>
             Empresas
         </h1>
-        <a class="btn btn-primary" href="/contabil/cadastros/empresa/nova">
+    </div>
+    <hr class="my-4">
+    <div>
+        <a class="btn btn-success" href="/contabil/cadastros/empresa/nova">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mr-1"><path fill="currentColor" d="M11 4h2v16h-2zM4 11h16v2H4z"/></svg>
-            Nova
+            Cadastrar
         </a>
     </div>
+    <hr class="my-4">
     <table class="table table-zebra w-full">
         <thead>
             <tr>
@@ -40,7 +44,7 @@
                         <a class="btn btn-sm btn-info btn-square" href="/contabil/cadastros/empresa/editar/@e.Id">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                         </a>
-                        <button class="btn btn-sm btn-error btn-square" @onclick="() => Delete(e.Id)">
+                        <button class="btn btn-sm btn-error btn-square" @onclick="() => AskDelete(e.Id)">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5"><path fill="currentColor" d="M9 3h6l1 2h5v2H3V5h5l1-2zm1 6h2v10h-2V9zm4 0h2v10h-2V9z"/></svg>
                         </button>
                     </td>
@@ -48,13 +52,47 @@
             }
         </tbody>
     </table>
+    @if (confirmOpen)
+    {
+        <div class="modal modal-open">
+            <div class="modal-box">
+                <h3 class="font-bold text-lg">Confirmar exclusão</h3>
+                <p class="py-4">Tem certeza que deseja excluir este registro?</p>
+                <div class="modal-action">
+                    <button class="btn btn-error" @onclick="ConfirmDelete">Excluir</button>
+                    <button class="btn" @onclick="CloseModal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    }
 </section>
 
 @code {
+    int? pendingDeleteId;
+    bool confirmOpen;
+    void AskDelete(int id)
+    {
+        pendingDeleteId = id;
+        confirmOpen = true;
+        StateHasChanged();
+    }
     void Delete(int id)
     {
         Service.Delete(id);
         StateHasChanged();
+    }
+    void ConfirmDelete()
+    {
+        if (pendingDeleteId is int id)
+        {
+            Delete(id);
+        }
+        CloseModal();
+    }
+    void CloseModal()
+    {
+        confirmOpen = false;
+        pendingDeleteId = null;
     }
     string FormatCnpj(string? value)
     {
