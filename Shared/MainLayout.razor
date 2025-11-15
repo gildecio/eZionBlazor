@@ -2,16 +2,80 @@
 
 <PageTitle>eZionBlazor</PageTitle>
 
+@inject eZionBlazor.Services.AuthService Auth
+@inject IJSRuntime JS
+@inject eZionBlazor.Contabil.Services.IEmpresaService Service
+@implements IDisposable
+
 <div class="min-h-screen flex flex-col">
-    <NavMenu />
-    <main class="flex-1">
-        <article class="container mx-auto px-4 pt-4">
-            @Body
-        </article>
-    </main>
-    <footer class="footer footer-center p-6 bg-base-200 text-base-content">
-        <aside>
-            <p>© @DateTime.Now.Year eZionBlazor. Interface com Tailwind + DaisyUI.</p>
-        </aside>
-    </footer>
+    @if (Auth.IsAuthenticated)
+    {
+        <NavMenu />
+        <main class="flex-1">
+            <article class="container mx-auto px-4 pt-4">
+                @if (Auth.SelectedEmpresaId is null)
+                {
+                    <div class="alert alert-warning mb-4">
+                        <span>Nenhuma empresa selecionada. Use o seletor no topo para escolher.</span>
+                    </div>
+                }
+                @if (Auth.SelectedEmpresaId is not null)
+                {
+                    <div class="mb-2 text-sm opacity-70">Empresa atual: <span class="font-semibold">@Auth.SelectedEmpresaName</span></div>
+                }
+                @Body
+            </article>
+        </main>
+        <footer class="footer footer-center p-6 bg-base-200 text-base-content">
+            <aside>
+                <p>© @DateTime.Now.Year eZionBlazor. Interface com Tailwind + DaisyUI.</p>
+            </aside>
+        </footer>
+    }
+    else
+    {
+        <main class="flex-1">
+            <Login />
+        </main>
+    }
 </div>
+@code {
+    protected override void OnInitialized()
+    {
+        Auth.OnEmpresaChanged += HandleAuthChange;
+        Auth.OnAuthChanged += HandleAuthChange;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var user = await JS.InvokeAsync<string>("getAuthUser");
+            if (!string.IsNullOrWhiteSpace(user) && !Auth.IsAuthenticated)
+            {
+                Auth.Login(user);
+            }
+            var idStr = await JS.InvokeAsync<string>("getSelectedEmpresaId");
+            if (int.TryParse(idStr, out var id))
+            {
+                var emp = Service.Get(id);
+                if (emp is not null)
+                {
+                    Auth.SetEmpresa(id, emp.RazaoSocial);
+                }
+            }
+            StateHasChanged();
+        }
+    }
+
+    private void HandleAuthChange()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Auth.OnEmpresaChanged -= HandleAuthChange;
+        Auth.OnAuthChanged -= HandleAuthChange;
+    }
+}

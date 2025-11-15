@@ -7,7 +7,7 @@ public class EmpresaService : IEmpresaService
     private readonly List<Empresa> _empresas = new();
     private int _seq = 1;
 
-    public IEnumerable<Empresa> List() => _empresas.OrderBy(e => e.Nome);
+    public IEnumerable<Empresa> List() => _empresas.OrderBy(e => e.RazaoSocial);
 
     public Empresa? Get(int id) => _empresas.FirstOrDefault(e => e.Id == id);
 
@@ -22,7 +22,7 @@ public class EmpresaService : IEmpresaService
     {
         var current = Get(empresa.Id);
         if (current is null) return;
-        current.Nome = empresa.Nome;
+        current.RazaoSocial = empresa.RazaoSocial;
         current.Cnpj = empresa.Cnpj;
         current.Ativa = empresa.Ativa;
     }

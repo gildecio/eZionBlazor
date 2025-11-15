@@ -23,7 +23,7 @@
         <thead>
             <tr>
                 <th>Id</th>
-                <th>Nome</th>
+                <th>Razão Social</th>
                 <th>CNPJ</th>
                 <th>Ativa</th>
                 <th></th>
@@ -34,7 +34,7 @@
             {
                 <tr>
                     <td>@e.Id</td>
-                    <td>@e.Nome</td>
+                    <td>@e.RazaoSocial</td>
                     <td>@FormatCnpj(e.Cnpj)</td>
                     <td>@(e.Ativa ? "Sim" : "Não")</td>
                     <td class="text-right flex gap-2 justify-end">

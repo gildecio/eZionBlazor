@@ -1,5 +1,6 @@
 @inject NavigationManager Nav
 @inject IJSRuntime JS
+@inject eZionBlazor.Contabil.Services.IEmpresaService Service
 
 <nav id="nav-root" class="navbar bg-neutral text-neutral-content">
     <div class="navbar-start">
@@ -8,8 +9,7 @@
     <div class="navbar-center hidden lg:flex">
         <ul class="menu menu-horizontal px-1">
             <li><a href="/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mr-2 inline"><path fill="currentColor" d="M3 9l9-6 9 6v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/></svg>Home</a></li>
-            <li><a href="/counter"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mr-2 inline"><path fill="currentColor" d="M11 4h2v16h-2zM4 11h16v2H4z"/></svg>Counter</a></li>
-            <li><a href="/fetchdata"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mr-2 inline"><path fill="currentColor" d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>Fetch data</a></li>
+            
             <li class="relative">
                 <a class="px-3" @onclick="ToggleContabil"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mr-2 inline"><path fill="currentColor" d="M9 7V5h6v2h5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7h5z"/></svg>Contábil</a>
                 @if (showContabil)
@@ -29,6 +29,23 @@
             </li>
         </ul>
     </div>
+    <div class="navbar-end hidden lg:flex">
+        @if (Auth.IsAuthenticated)
+        {
+            <div class="flex items-center gap-2">
+                <select class="select select-bordered select-sm" @onchange="OnEmpresaChanged">
+                    <option value="">Selecionar empresa</option>
+                    @foreach (var e in Service.List())
+                    {
+                        <option value="@e.Id" selected="@(Auth.SelectedEmpresaId == e.Id)">@e.RazaoSocial</option>
+                    }
+                </select>
+                <button class="btn btn-ghost" title="Sair" @onclick="DoLogout">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5"><path fill="currentColor" d="M10 4h2v8h-2zM9 12h6l-3 3zM5 20h14v-2H5V4H3v16a2 2 0 0 0 2 2z"/></svg>
+                </button>
+            </div>
+        }
+    </div>
     <div class="navbar-end lg:hidden">
         <button class="btn btn-ghost" @onclick="ToggleMobile">Menu</button>
     </div>
@@ -39,8 +56,7 @@
     <div class="lg:hidden">
         <ul class="menu bg-base-100 w-full">
             <li><a href="/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mr-2 inline"><path fill="currentColor" d="M3 9l9-6 9 6v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/></svg>Home</a></li>
-            <li><a href="/counter"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mr-2 inline"><path fill="currentColor" d="M11 4h2v16h-2zM4 11h16v2H4z"/></svg>Counter</a></li>
-            <li><a href="/fetchdata"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mr-2 inline"><path fill="currentColor" d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>Fetch data</a></li>
+            
             <li class="menu-title">Contábil</li>
             <li>
                 <a class="px-3" @onclick="ToggleCadastrosMobile"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mr-2 inline"><path fill="currentColor" d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>Cadastros</a>
@@ -56,6 +72,7 @@
 }
 
 @code {
+    [Inject] eZionBlazor.Services.AuthService Auth { get; set; } = default!;
     private bool mobileOpen;
     private bool showContabil;
     private bool showCadastros;
@@ -65,6 +82,16 @@
         if (firstRender)
         {
             await JS.InvokeVoidAsync("navMenuRegister", DotNetObjectReference.Create(this), "nav-root");
+            var idStr = await JS.InvokeAsync<string>("getSelectedEmpresaId");
+            if (int.TryParse(idStr, out var id))
+            {
+                var emp = Service.Get(id);
+                if (emp is not null)
+                {
+                    Auth.SetEmpresa(id, emp.RazaoSocial);
+                    StateHasChanged();
+                }
+            }
         }
     }
     [JSInvokable]
@@ -80,4 +107,28 @@
     private void ToggleContabil() => showContabil = !showContabil;
     private void ToggleCadastros() => showCadastros = !showCadastros;
     private void ToggleCadastrosMobile() => showCadastrosMobile = !showCadastrosMobile;
+    private void DoLogout()
+    {
+        Auth.Logout();
+        JS.InvokeVoidAsync("clearAuthUser");
+        JS.InvokeVoidAsync("setSelectedEmpresaId", "");
+        CloseAll();
+        Nav.NavigateTo("/");
+    }
+
+    private async Task OnEmpresaChanged(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+        if (int.TryParse(value, out var id))
+        {
+            var emp = Service.Get(id);
+            Auth.SetEmpresa(id, emp?.RazaoSocial);
+            await JS.InvokeVoidAsync("setSelectedEmpresaId", id.ToString());
+        }
+        else
+        {
+            Auth.SetEmpresa(null, null);
+            await JS.InvokeVoidAsync("setSelectedEmpresaId", "");
+        }
+    }
 }

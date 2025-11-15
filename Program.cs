@@ -1,14 +1,14 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using eZionBlazor.Data;
+ 
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddSingleton<eZionBlazor.Contabil.Services.IEmpresaService, eZionBlazor.Contabil.Services.EmpresaService>();
+builder.Services.AddScoped<eZionBlazor.Services.AuthService>();
 // Removido DbContext ausente para manter build estável
 
 var app = builder.Build();

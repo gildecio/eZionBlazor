@@ -1,0 +1,52 @@
+@inject eZionBlazor.Services.AuthService Auth
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<section class="container mx-auto px-4 py-16 max-w-md">
+    <div class="card bg-base-100 shadow">
+        <div class="card-body">
+            <h2 class="card-title">Entrar</h2>
+            @if (!string.IsNullOrEmpty(error))
+            {
+                <div class="alert alert-error">@error</div>
+            }
+            <EditForm Model="model" OnValidSubmit="DoLogin">
+                <DataAnnotationsValidator />
+                <div class="form-control w-full">
+                    <label class="label"><span class="label-text">Usuário</span></label>
+                    <InputText class="input input-bordered w-full" @bind-Value="model.User" />
+                </div>
+                <div class="form-control w-full mt-2">
+                    <label class="label"><span class="label-text">Senha</span></label>
+                    <InputText type="password" class="input input-bordered w-full" @bind-Value="model.Pass" />
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary w-full">Entrar</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+ </section>
+
+@code {
+    class LoginModel
+    {
+        public string User { get; set; } = string.Empty;
+        public string Pass { get; set; } = string.Empty;
+    }
+    LoginModel model = new();
+    string? error;
+    void DoLogin()
+    {
+        if (model.User == "admin" && model.Pass == "123")
+        {
+            Auth.Login(model.User);
+            JS.InvokeVoidAsync("setAuthUser", model.User);
+            Nav.NavigateTo("/");
+        }
+        else
+        {
+            error = "Usuário ou senha inválidos";
+        }
+    }
+}

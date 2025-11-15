@@ -4,13 +4,14 @@
 <EditForm Model="@Model" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <div class="form-control w-full">
-        <label class="label"><span class="label-text">Nome</span></label>
-        <InputText class="input input-bordered w-full" @bind-Value="Model.Nome" disabled="@IsReadOnly" readonly="@IsReadOnly" />
-        <ValidationMessage For="() => Model.Nome" />
+        <label class="label"><span class="label-text">Razão Social</span></label>
+        <InputText class="input input-bordered w-full" placeholder="Razão Social" @bind-Value="Model.RazaoSocial" disabled="@IsReadOnly" readonly="@IsReadOnly" />
+        <ValidationMessage For="() => Model.RazaoSocial" />
     </div>
     <div class="form-control w-full">
         <label class="label"><span class="label-text">CNPJ</span></label>
         <input id="cnpj-input" type="text" class="input input-bordered w-full" @bind="Model.Cnpj" @ref="cnpjRef" readonly="@IsReadOnly" />
+        <ValidationMessage For="() => Model.Cnpj" />
     </div>
     <div class="form-control">
         <label class="label cursor-pointer">
@@ -21,7 +22,7 @@
     <div class="mt-4 flex gap-2">
         @if (!IsReadOnly)
         {
-            <button type="submit" class="btn btn-primary">Salvar</button>
+            <button type="submit" class="btn btn-success">Salvar</button>
             <a class="btn" href="/contabil/cadastros/empresa">Cancelar</a>
         }
         else
