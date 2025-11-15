@@ -1,0 +1,20 @@
+@page "/contabil/cadastros/empresa/nova"
+@using eZionBlazor.Contabil.Models
+@inject eZionBlazor.Contabil.Services.IEmpresaService Service
+@inject NavigationManager Nav
+
+<PageTitle>Nova Empresa</PageTitle>
+
+<section class="container mx-auto px-4 py-8 max-w-2xl">
+    <h1 class="text-2xl font-bold mb-4">Nova Empresa</h1>
+    <EmpresaForm Model="@model" OnValidSubmit="@Save" />
+</section>
+
+@code {
+    Empresa model = new();
+    void Save(EditContext _)
+    {
+        Service.Create(model);
+        Nav.NavigateTo("/contabil/cadastros/empresa");
+    }
+}

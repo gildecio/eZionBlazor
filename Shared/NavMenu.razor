@@ -1,15 +1,32 @@
 @inject NavigationManager Nav
+@inject IJSRuntime JS
 
-<nav class="navbar bg-neutral text-neutral-content">
+<nav id="nav-root" class="navbar bg-neutral text-neutral-content">
     <div class="navbar-start">
         <a class="btn btn-ghost normal-case text-xl" href="/">eZionBlazor</a>
     </div>
     <div class="navbar-center hidden lg:flex">
         <ul class="menu menu-horizontal px-1">
-            <li><a href="/">Home</a></li>
-            <li><a href="/counter">Counter</a></li>
-            <li><a href="/fetchdata">Fetch data</a></li>
-            
+            <li><a href="/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mr-2 inline"><path fill="currentColor" d="M3 9l9-6 9 6v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/></svg>Home</a></li>
+            <li><a href="/counter"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mr-2 inline"><path fill="currentColor" d="M11 4h2v16h-2zM4 11h16v2H4z"/></svg>Counter</a></li>
+            <li><a href="/fetchdata"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mr-2 inline"><path fill="currentColor" d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>Fetch data</a></li>
+            <li class="relative">
+                <a class="px-3" @onclick="ToggleContabil"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mr-2 inline"><path fill="currentColor" d="M9 7V5h6v2h5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7h5z"/></svg>Contábil</a>
+                @if (showContabil)
+                {
+                    <ul class="menu mt-2 p-2 shadow bg-base-100 text-base-content rounded-box absolute left-0 top-full w-56 z-50">
+                        <li>
+                            <a class="px-3" @onclick="ToggleCadastros"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mr-2 inline"><path fill="currentColor" d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>Cadastros</a>
+                            @if (showCadastros)
+                            {
+                                <ul class="menu mt-2 p-2 bg-base-100 rounded-box w-56">
+                                    <li><a href="/contabil/cadastros/empresa" @onclick="CloseAll"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mr-2 inline"><path fill="currentColor" d="M3 9l9-6 9 6v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/></svg>Empresa</a></li>
+                                </ul>
+                            }
+                        </li>
+                    </ul>
+                }
+            </li>
         </ul>
     </div>
     <div class="navbar-end lg:hidden">
@@ -21,14 +38,46 @@
 {
     <div class="lg:hidden">
         <ul class="menu bg-base-100 w-full">
-            <li><a href="/">Home</a></li>
-            <li><a href="/counter">Counter</a></li>
-            <li><a href="/fetchdata">Fetch data</a></li>           
+            <li><a href="/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mr-2 inline"><path fill="currentColor" d="M3 9l9-6 9 6v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/></svg>Home</a></li>
+            <li><a href="/counter"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mr-2 inline"><path fill="currentColor" d="M11 4h2v16h-2zM4 11h16v2H4z"/></svg>Counter</a></li>
+            <li><a href="/fetchdata"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mr-2 inline"><path fill="currentColor" d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>Fetch data</a></li>
+            <li class="menu-title">Contábil</li>
+            <li>
+                <a class="px-3" @onclick="ToggleCadastrosMobile"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mr-2 inline"><path fill="currentColor" d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>Cadastros</a>
+                @if (showCadastrosMobile)
+                {
+                    <ul class="menu pl-4">
+                        <li><a href="/contabil/cadastros/empresa" @onclick="CloseAll">Empresa</a></li>
+                    </ul>
+                }
+            </li>
         </ul>
     </div>
 }
 
 @code {
     private bool mobileOpen;
+    private bool showContabil;
+    private bool showCadastros;
+    private bool showCadastrosMobile;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("navMenuRegister", DotNetObjectReference.Create(this), "nav-root");
+        }
+    }
+    [JSInvokable]
+    public void CloseAll()
+    {
+        mobileOpen = false;
+        showContabil = false;
+        showCadastros = false;
+        showCadastrosMobile = false;
+        StateHasChanged();
+    }
     private void ToggleMobile() => mobileOpen = !mobileOpen;
+    private void ToggleContabil() => showContabil = !showContabil;
+    private void ToggleCadastros() => showCadastros = !showCadastros;
+    private void ToggleCadastrosMobile() => showCadastrosMobile = !showCadastrosMobile;
 }

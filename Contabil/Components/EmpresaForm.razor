@@ -1,0 +1,47 @@
+@using eZionBlazor.Contabil.Models
+@inject IJSRuntime JS
+
+<EditForm Model="@Model" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="form-control w-full">
+        <label class="label"><span class="label-text">Nome</span></label>
+        <InputText class="input input-bordered w-full" @bind-Value="Model.Nome" disabled="@IsReadOnly" readonly="@IsReadOnly" />
+        <ValidationMessage For="() => Model.Nome" />
+    </div>
+    <div class="form-control w-full">
+        <label class="label"><span class="label-text">CNPJ</span></label>
+        <input id="cnpj-input" type="text" class="input input-bordered w-full" @bind="Model.Cnpj" @ref="cnpjRef" readonly="@IsReadOnly" />
+    </div>
+    <div class="form-control">
+        <label class="label cursor-pointer">
+            <span class="label-text">Ativa</span>
+            <input type="checkbox" class="checkbox" @bind="Model.Ativa" disabled="@IsReadOnly" />
+        </label>
+    </div>
+    <div class="mt-4 flex gap-2">
+        @if (!IsReadOnly)
+        {
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <a class="btn" href="/contabil/cadastros/empresa">Cancelar</a>
+        }
+        else
+        {
+            <a class="btn" href="/contabil/cadastros/empresa">Voltar</a>
+        }
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public Empresa Model { get; set; } = new();
+    [Parameter] public EventCallback<EditContext> OnValidSubmit { get; set; }
+    private ElementReference cnpjRef;
+    private Task HandleValidSubmit(EditContext ctx) => OnValidSubmit.InvokeAsync(ctx);
+    [Parameter] public bool IsReadOnly { get; set; }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("cnpjMaskAttach", cnpjRef);
+        }
+    }
+}

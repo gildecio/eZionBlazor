@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
+builder.Services.AddSingleton<eZionBlazor.Contabil.Services.IEmpresaService, eZionBlazor.Contabil.Services.EmpresaService>();
 // Removido DbContext ausente para manter build estável
 
 var app = builder.Build();

@@ -1,0 +1,76 @@
+@page "/contabil/cadastros/empresa"
+@using eZionBlazor.Contabil.Models
+@inject eZionBlazor.Contabil.Services.IEmpresaService Service
+
+<PageTitle>Empresas</PageTitle>
+
+<section class="container mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-4">
+        <h1 class="text-2xl font-bold flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6"><path fill="currentColor" d="M3 9l9-6 9 6v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/></svg>
+            Empresas
+        </h1>
+        <a class="btn btn-primary" href="/contabil/cadastros/empresa/nova">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 mr-1"><path fill="currentColor" d="M11 4h2v16h-2zM4 11h16v2H4z"/></svg>
+            Nova
+        </a>
+    </div>
+    <table class="table table-zebra w-full">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nome</th>
+                <th>CNPJ</th>
+                <th>Ativa</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var e in Service.List())
+            {
+                <tr>
+                    <td>@e.Id</td>
+                    <td>@e.Nome</td>
+                    <td>@FormatCnpj(e.Cnpj)</td>
+                    <td>@(e.Ativa ? "Sim" : "Não")</td>
+                    <td class="text-right flex gap-2 justify-end">
+                        <a class="btn btn-sm btn-outline btn-square" href="/contabil/cadastros/empresa/ver/@e.Id">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5"><path fill="currentColor" d="M12 5c7 0 11 7 11 7s-4 7-11 7S1 12 1 12s4-7 11-7zm0 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+                        </a>
+                        <a class="btn btn-sm btn-info btn-square" href="/contabil/cadastros/empresa/editar/@e.Id">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                        </a>
+                        <button class="btn btn-sm btn-error btn-square" @onclick="() => Delete(e.Id)">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5"><path fill="currentColor" d="M9 3h6l1 2h5v2H3V5h5l1-2zm1 6h2v10h-2V9zm4 0h2v10h-2V9z"/></svg>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
+
+@code {
+    void Delete(int id)
+    {
+        Service.Delete(id);
+        StateHasChanged();
+    }
+    string FormatCnpj(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return string.Empty;
+        var digits = new string(value.Where(char.IsDigit).Take(14).ToArray());
+        if (digits.Length == 0) return string.Empty;
+        var p1 = digits.Length >= 2 ? digits.Substring(0, 2) : digits;
+        var p2 = digits.Length >= 5 ? digits.Substring(2, 3) : (digits.Length > 2 ? digits.Substring(2) : "");
+        var p3 = digits.Length >= 8 ? digits.Substring(5, 3) : (digits.Length > 5 ? digits.Substring(5) : "");
+        var p4 = digits.Length >= 12 ? digits.Substring(8, 4) : (digits.Length > 8 ? digits.Substring(8) : "");
+        var p5 = digits.Length == 14 ? digits.Substring(12, 2) : (digits.Length > 12 ? digits.Substring(12) : "");
+        var outStr = p1;
+        if (!string.IsNullOrEmpty(p2)) outStr += "." + p2;
+        if (!string.IsNullOrEmpty(p3)) outStr += "." + p3;
+        if (!string.IsNullOrEmpty(p4)) outStr += "/" + p4;
+        if (!string.IsNullOrEmpty(p5)) outStr += "-" + p5;
+        return outStr;
+    }
+}

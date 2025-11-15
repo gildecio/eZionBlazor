@@ -1,0 +1,33 @@
+@page "/contabil/cadastros/empresa/editar/{id:int}"
+@using eZionBlazor.Contabil.Models
+@inject eZionBlazor.Contabil.Services.IEmpresaService Service
+@inject NavigationManager Nav
+
+<PageTitle>Editar Empresa</PageTitle>
+
+<section class="container mx-auto px-4 py-8 max-w-2xl">
+    <h1 class="text-2xl font-bold mb-4">Editar Empresa</h1>
+    @if (model is null)
+    {
+        <div class="alert alert-error">Registro não encontrado</div>
+    }
+    else
+    {
+        <EmpresaForm Model="@model" OnValidSubmit="@Save" />
+    }
+</section>
+
+@code {
+    [Parameter] public int id { get; set; }
+    Empresa? model;
+    protected override void OnParametersSet()
+    {
+        model = Service.Get(id);
+    }
+    void Save(EditContext _)
+    {
+        if (model is null) return;
+        Service.Update(model);
+        Nav.NavigateTo("/contabil/cadastros/empresa");
+    }
+}
