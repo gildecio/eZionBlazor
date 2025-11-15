@@ -1,9 +1,37 @@
-﻿@page "/"
+@page "/"
 
-<PageTitle>Index</PageTitle>
+<PageTitle>eZionBlazor</PageTitle>
 
-<h1>Hello, world!</h1>
+<section class="hero min-h-[60vh] bg-base-200">
+    <div class="hero-content text-center">
+        <div class="max-w-2xl">
+            <h1 class="text-5xl font-bold">Construa rápido com Blazor + Tailwind</h1>
+            <p class="py-6">Interface moderna com tema escuro, componentes DaisyUI e utilitários Tailwind.</p>
+            <div class="flex justify-center gap-3">
+                <a class="btn btn-primary" href="/fetchdata">Ver exemplo de tabela</a>
+                <a class="btn btn-outline" href="/counter">Ver contador</a>
+            </div>
+        </div>
+    </div>
+</section>
 
-Welcome to your new app.
-
-<SurveyPrompt Title="How is Blazor working for you?" />
+<section class="container mx-auto px-4 py-12 grid md:grid-cols-3 gap-6">
+    <div class="card bg-base-100 shadow">
+        <div class="card-body">
+            <h2 class="card-title">Rápido</h2>
+            <p>Estilos com utilitários. Sem CSS manual desnecessário.</p>
+        </div>
+    </div>
+    <div class="card bg-base-100 shadow">
+        <div class="card-body">
+            <h2 class="card-title">Bonito</h2>
+            <p>Componentes DaisyUI prontos: navbar, cards, alerts, tabelas.</p>
+        </div>
+    </div>
+    <div class="card bg-base-100 shadow">
+        <div class="card-body">
+            <h2 class="card-title">Moderno</h2>
+            <p>Tema escuro habilitado globalmente e responsivo.</p>
+        </div>
+    </div>
+</section>
